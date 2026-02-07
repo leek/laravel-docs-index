@@ -1,0 +1,48 @@
+{
+    "name": "leek/laravel-docs-index",
+    "description": "Download package docs locally and inject a compressed index into agent guidelines files",
+    "keywords": ["laravel", "docs", "ai", "agents", "claude", "cursor", "windsurf"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chris Lee",
+            "email": "chris@chrisjlee.net"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/console": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "symfony/finder": "^7.0",
+        "symfony/process": "^7.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Leek\\LaravelDocsIndex\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Leek\\LaravelDocsIndex\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Leek\\LaravelDocsIndex\\LaravelDocsIndexServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
