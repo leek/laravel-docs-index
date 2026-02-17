@@ -43,13 +43,28 @@ class DocsDownloader
     }
 
     /**
-     * Pull latest changes for an existing clone.
+     * Fetch and reset to latest remote HEAD.
+     *
+     * Uses fetch + reset instead of pull to handle upstream force-pushes
+     * that corrupt shallow clone history.
      */
     public function update(string $targetDir): void
     {
+        $cwd = base_path($targetDir);
+
         $this->run(
-            ['git', 'pull', '--depth=1'],
-            base_path($targetDir)
+            ['git', 'fetch', '--depth=1'],
+            $cwd
+        );
+
+        $branch = trim($this->runAndReturn(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            $cwd
+        ));
+
+        $this->run(
+            ['git', 'reset', '--hard', "origin/{$branch}"],
+            $cwd
         );
     }
 
@@ -67,5 +82,23 @@ class DocsDownloader
                 sprintf('Command failed: %s — %s', implode(' ', $command), $process->getErrorOutput())
             );
         }
+    }
+
+    /**
+     * @param  list<string>  $command
+     */
+    private function runAndReturn(array $command, string $cwd): string
+    {
+        $process = new Process($command, $cwd);
+        $process->setTimeout(120);
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            throw new RuntimeException(
+                sprintf('Command failed: %s — %s', implode(' ', $command), $process->getErrorOutput())
+            );
+        }
+
+        return $process->getOutput();
     }
 }
