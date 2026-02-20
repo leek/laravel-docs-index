@@ -45,6 +45,7 @@ class DocsIndexInjector
             }
 
             $newContent = $block."\n\n".ltrim((string) $content);
+            $newContent = (new BoostConflictCleaner)->clean($newContent);
 
             if (ftruncate($handle, 0) === false || fseek($handle, 0) === -1) {
                 throw new RuntimeException("Failed to reset file pointer: {$fullPath}");
