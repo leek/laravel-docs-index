@@ -72,7 +72,7 @@ class DocsIndexCommand extends Command
                 
                 if (! is_dir($targetDir)) {
                     if (! @mkdir($targetDir, 0755, true) && ! is_dir($targetDir)) {
-                        $this->error("  <error>Failed to create directory: {$targetDir}</error>");
+                        $this->error("  Failed to create directory: {$targetDir}");
                         continue;
                     }
                 }
