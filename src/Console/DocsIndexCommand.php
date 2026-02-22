@@ -69,7 +69,7 @@ class DocsIndexCommand extends Command
                 $this->line("  <info>{$name}</info> → directory exists (not a symlink)");
             } else {
                 $targetDir = dirname($linkPath);
-                
+
                 if (! is_dir($targetDir)) {
                     if (! @mkdir($targetDir, 0755, true) && ! is_dir($targetDir)) {
                         $this->error("  Failed to create directory: {$targetDir}");
