@@ -107,8 +107,15 @@ class DocsIndexCommand extends Command
 
             try {
                 if (is_dir(base_path($targetSubDir)) && ! $this->option('force')) {
-                    $downloader->update($targetSubDir);
-                    $this->line('    Updated (git pull)');
+                    try {
+                        $downloader->update($targetSubDir);
+                        $this->line('    Updated');
+                    } catch (Throwable) {
+                        $this->warn('    Update failed (corrupt clone?) — re-cloning...');
+                        $this->deleteDirectory(base_path($targetSubDir));
+                        $downloader->download($repo, $branch, $sparsePath, $targetSubDir);
+                        $this->line('    Re-cloned');
+                    }
                 } else {
                     if (is_dir(base_path($targetSubDir))) {
                         $this->deleteDirectory(base_path($targetSubDir));
