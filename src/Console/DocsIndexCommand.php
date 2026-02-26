@@ -153,7 +153,7 @@ class DocsIndexCommand extends Command
         }
 
         foreach ($agents as $filePath) {
-            $injector->inject($filePath, $index);
+            $injector->inject($filePath, $index, $outputDir);
             $this->line("Injected index into <info>{$filePath}</info>");
         }
 

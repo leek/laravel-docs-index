@@ -82,7 +82,6 @@ class IndexGenerator
         $parts = [
             '[Laravel Docs Index]',
             "root: {$docsDir}",
-            "CRITICAL: Your training data may be OUTDATED for this project's package versions. Always read from {$docsDir}/ before any task. Use Read tool on the file paths below.",
         ];
 
         foreach ($grouped->sortKeys() as $dir => $dirFiles) {

@@ -8,15 +8,17 @@ use RuntimeException;
 
 class DocsIndexInjector
 {
-    private const START_MARKER = '<!-- LARAVEL-DOCS-INDEX:START -->';
+    private const PREAMBLE_MARKER = '[LARAVEL-DOCS-INDEX:PREAMBLE]';
 
-    private const END_MARKER = '<!-- LARAVEL-DOCS-INDEX:END -->';
+    private const START_MARKER = '[LARAVEL-DOCS-INDEX:START]';
+
+    private const END_MARKER = '[LARAVEL-DOCS-INDEX:END]';
 
     /**
      * Inject index content between markers in the target file.
      * Prepends to beginning of file, before any existing content.
      */
-    public function inject(string $filePath, string $indexContent): void
+    public function inject(string $filePath, string $indexContent, string $docsDir = '.laravel-docs'): void
     {
         $fullPath = base_path($filePath);
 
@@ -37,12 +39,15 @@ class DocsIndexInjector
 
             $content = stream_get_contents($handle) ?: '';
 
-            $block = self::START_MARKER."\n".$indexContent."\n".self::END_MARKER;
+            $preamble = self::PREAMBLE_MARKER."\n"
+                ."## Local Docs: {$docsDir}\n"
+                ."\n"
+                ."**IMPORTANT: Your training data is likely OUTDATED for this project's package versions. ALWAYS read the relevant docs from `{$docsDir}/` using the Read tool BEFORE writing any code. The index below lists all available doc files.**\n"
+                ."\n";
+            $block = $preamble.self::START_MARKER."\n".$indexContent."\n".self::END_MARKER;
 
-            if (str_contains($content, self::START_MARKER) && str_contains($content, self::END_MARKER)) {
-                $pattern = '/\n*'.preg_quote(self::START_MARKER, '/').'.*?'.preg_quote(self::END_MARKER, '/').'\n*/s';
-                $content = preg_replace($pattern, '', $content);
-            }
+            // Remove any existing block — supports both old HTML comment markers and new bracket markers
+            $content = $this->stripExistingBlock($content);
 
             $newContent = $block."\n\n".ltrim((string) $content);
             $newContent = (new BoostConflictCleaner)->clean($newContent);
@@ -59,6 +64,29 @@ class DocsIndexInjector
         } finally {
             fclose($handle);
         }
+    }
+
+    /**
+     * Strip any existing docs index block, handling both old and new marker formats.
+     */
+    protected function stripExistingBlock(string $content): string
+    {
+        $formats = [
+            // New bracket format
+            [self::PREAMBLE_MARKER, self::START_MARKER, self::END_MARKER],
+            // Old HTML comment format
+            ['<!-- LARAVEL-DOCS-INDEX:PREAMBLE -->', '<!-- LARAVEL-DOCS-INDEX:START -->', '<!-- LARAVEL-DOCS-INDEX:END -->'],
+        ];
+
+        foreach ($formats as [$preamble, $start, $end]) {
+            if (str_contains($content, $start) && str_contains($content, $end)) {
+                $preamblePattern = '('.preg_quote($preamble, '/').'.*?)?';
+                $pattern = '/\n*'.$preamblePattern.preg_quote($start, '/').'.*?'.preg_quote($end, '/').'\n*/s';
+                $content = preg_replace($pattern, '', $content);
+            }
+        }
+
+        return $content;
     }
 
     protected function acquireLockWithRetry(mixed $handle, string $filePath, int $maxRetries = 3): void

@@ -35,6 +35,7 @@ it('generates correct pipe-delimited format', function (): void {
     expect($index)
         ->toContain('[Laravel Docs Index]')
         ->toContain("root: {$this->docsDir}")
+        ->not->toContain('CRITICAL')
         ->toContain('laravel-docs:{{cache.md,routing.md}}');
 });
 
