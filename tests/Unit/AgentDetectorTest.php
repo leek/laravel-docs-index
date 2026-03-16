@@ -18,6 +18,8 @@ it('returns known files list', function (): void {
     expect($known)
         ->toBeArray()
         ->toContain('CLAUDE.md')
+        ->toContain('AGENTS.md')
+        ->toContain('GEMINI.md')
         ->toContain('.cursorrules')
         ->toContain('.windsurfrules')
         ->toContain('.github/copilot-instructions.md');

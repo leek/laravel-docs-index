@@ -8,4 +8,5 @@ composer.lock
 *.swp
 *.swo
 .DS_Store
-.claude/settings.local.json
+.claude/
+.serena/

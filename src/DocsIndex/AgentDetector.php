@@ -13,6 +13,8 @@ class AgentDetector
      */
     private const GUIDELINES_FILES = [
         'CLAUDE.md',
+        'AGENTS.md',
+        'GEMINI.md',
         '.cursorrules',
         '.windsurfrules',
         '.github/copilot-instructions.md',

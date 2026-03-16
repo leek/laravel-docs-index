@@ -51,19 +51,18 @@ class DocsDownloader
     public function update(string $targetDir): void
     {
         $cwd = base_path($targetDir);
-
-        $this->run(
-            ['git', 'fetch', '--depth=1'],
-            $cwd
-        );
-
         $branch = trim($this->runAndReturn(
-            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            ['git', 'symbolic-ref', '--quiet', '--short', 'HEAD'],
             $cwd
         ));
 
         $this->run(
-            ['git', 'reset', '--hard', "origin/{$branch}"],
+            ['git', 'fetch', '--depth=1', '--prune', 'origin', "+refs/heads/{$branch}:refs/remotes/origin/{$branch}"],
+            $cwd
+        );
+
+        $this->run(
+            ['git', 'checkout', '-B', $branch, "origin/{$branch}"],
             $cwd
         );
     }
@@ -71,7 +70,7 @@ class DocsDownloader
     /**
      * @param  list<string>  $command
      */
-    private function run(array $command, string $cwd): void
+    protected function run(array $command, string $cwd): void
     {
         $process = new Process($command, $cwd);
         $process->setTimeout(120);
@@ -87,7 +86,7 @@ class DocsDownloader
     /**
      * @param  list<string>  $command
      */
-    private function runAndReturn(array $command, string $cwd): string
+    protected function runAndReturn(array $command, string $cwd): string
     {
         $process = new Process($command, $cwd);
         $process->setTimeout(120);
