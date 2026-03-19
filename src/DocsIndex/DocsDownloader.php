@@ -48,10 +48,10 @@ class DocsDownloader
      * Uses fetch + reset instead of pull to handle upstream force-pushes
      * that corrupt shallow clone history.
      */
-    public function update(string $targetDir): void
+    public function update(string $targetDir, ?string $branch = null): void
     {
         $cwd = base_path($targetDir);
-        $branch = trim($this->runAndReturn(
+        $branch ??= trim($this->runAndReturn(
             ['git', 'symbolic-ref', '--quiet', '--short', 'HEAD'],
             $cwd
         ));

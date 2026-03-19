@@ -108,7 +108,7 @@ class DocsIndexCommand extends Command
             try {
                 if (is_dir(base_path($targetSubDir)) && ! $this->option('force')) {
                     try {
-                        $downloader->update($targetSubDir);
+                        $downloader->update($targetSubDir, $branch);
                         $this->line('    Updated');
                     } catch (Throwable) {
                         $this->warn('    Update failed (corrupt clone?) — re-cloning...');

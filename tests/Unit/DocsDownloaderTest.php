@@ -2,7 +2,35 @@
 
 use Leek\LaravelDocsIndex\DocsIndex\DocsDownloader;
 
-it('updates shallow clones by fetching the remote branch tip and resetting the local branch to it', function (): void {
+it('updates shallow clones by fetching the expected remote branch tip and resetting the local branch to it', function (): void {
+    $downloader = new class extends DocsDownloader
+    {
+        public array $calls = [];
+
+        protected function run(array $command, string $cwd): void
+        {
+            $this->calls[] = ['run', $command, $cwd];
+        }
+
+    };
+
+    $downloader->update('.laravel-docs/laravel-docs', '12.x');
+
+    expect($downloader->calls)->toBe([
+        [
+            'run',
+            ['git', 'fetch', '--depth=1', '--prune', 'origin', '+refs/heads/12.x:refs/remotes/origin/12.x'],
+            base_path('.laravel-docs/laravel-docs'),
+        ],
+        [
+            'run',
+            ['git', 'checkout', '-B', '12.x', 'origin/12.x'],
+            base_path('.laravel-docs/laravel-docs'),
+        ],
+    ]);
+});
+
+it('falls back to the checked out branch when no branch is provided', function (): void {
     $downloader = new class extends DocsDownloader
     {
         public array $calls = [];
